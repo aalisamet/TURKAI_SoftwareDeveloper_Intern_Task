@@ -1,0 +1,7 @@
+selenium:
+    base_url: "https://www.interpol.int/How-we-work/Notices/Red-Notices/View-Red-Notices#"
+search:
+    search_method:
+        list_item: "css selector"
+    search_value:
+        list_item: ".redNoticesList__item.notice_red"
