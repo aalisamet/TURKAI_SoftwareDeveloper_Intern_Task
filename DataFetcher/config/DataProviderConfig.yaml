@@ -5,3 +5,9 @@ search:
         list_item: "css selector"
     search_value:
         list_item: ".redNoticesList__item.notice_red"
+
+
+http:
+    base_url: "https://ws-public.interpol.int/notices/v1/red?resultPerPage="
+    number_of_results: "160"
+
