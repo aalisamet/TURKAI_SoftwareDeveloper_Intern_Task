@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 import requests
-from src.services.ConfigDistributer import ConfigDistributerService
+from services.ConfigDistributer import ConfigDistributerService
 
 
 
@@ -32,7 +32,7 @@ class HttpDataFetcherService:
     def __request_wanted_links():
         try:
             if int(HttpDataFetcherService.__number_of_results)>160 or int(HttpDataFetcherService.__number_of_results)<1:
-                HttpDataFetcherService.__number_of_results = 159
+                HttpDataFetcherService.__number_of_results = 160
         except ValueError:
             HttpDataFetcherService.__number_of_results = 159
         try:
@@ -85,7 +85,7 @@ class HttpDataFetcherService:
             return wanted_list
 
     @staticmethod
-    async def request_wanted_profiles():
+    def request_wanted_profiles():
 
         urls = HttpDataFetcherService.__request_wanted_links()
         print(urls)

@@ -1,0 +1,4 @@
+RabbitMQ:
+    host: "localhost"
+    port: 5672
+    topic: "interpol_datas"

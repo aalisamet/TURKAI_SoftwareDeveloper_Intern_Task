@@ -3,33 +3,30 @@ import yaml
 
 class ConfigDistributerService:
 
+
+
+
+
     def __init__(self):
-        path = pathlib.Path(__file__).parent.absolute().parent.absolute().parent.absolute().joinpath('config/DataProviderConfig.yaml')
-        try:
-            with open(path, 'r') as file:
-                self.provider_config_data = yaml.safe_load(file)
-        except FileNotFoundError:
-            print("Config file not found.")
-        except yaml.YAMLError as e:
-            print(f"Error parsing YAML: {e}")
-        finally:
-            file.close()
 
-        path = pathlib.Path(__file__).parent.absolute().parent.absolute().parent.absolute().joinpath(
-            'config/SchedulerConfig.yaml')
-        try:
-            with open(path, 'r') as file:
-                self.scheduler_config_data = yaml.safe_load(file)
-        except FileNotFoundError:
-            print("Config file not found.")
-        except yaml.YAMLError as e:
-            print(f"Error parsing YAML: {e}")
-        finally:
-            file.close()
+        def open_config_file(config_file_name):
+            path = pathlib.Path(__file__).parent.absolute().parent.absolute().parent.absolute().joinpath(
+                f'config/{config_file_name}')
+            try:
+                with open(path, 'r') as file:
+                    return yaml.safe_load(file)
+            except FileNotFoundError:
+                print("Config file not found.")
+            except yaml.YAMLError as e:
+                print(f"Error parsing YAML: {e}")
+            finally:
+                file.close()
 
 
-
-
+        self.provider_config_data = open_config_file('DataProviderConfig.yaml')
+        print(self.provider_config_data)
+        self.scheduler_config_data = open_config_file('SchedulerConfig.yaml')
+        self.rabbitmq_config_data = open_config_file('RabbitMQConfig.yaml')
 
 
 
@@ -39,6 +36,9 @@ class ConfigDistributerService:
         data = ConfigDistributerService().provider_config_data
         for argument in args:
             data = data[argument]
+        if data is None:
+            print("Config file corrupted.")
+            return ""
         return data
 
     @staticmethod
@@ -46,4 +46,17 @@ class ConfigDistributerService:
         data = ConfigDistributerService().scheduler_config_data
         for argument in args:
             data = data[argument]
+        if data is None:
+            print("Config file corrupted.")
+            return ""
+        return data
+
+    @staticmethod
+    def get_rabbitmq_config_data(*args):
+        data = ConfigDistributerService().rabbitmq_config_data
+        for argument in args:
+            data = data[argument]
+        if data is None:
+            print("Config file corrupted.")
+            return ""
         return data

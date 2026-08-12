@@ -9,5 +9,5 @@ search:
 
 http:
     base_url: "https://ws-public.interpol.int/notices/v1/red?resultPerPage="
-    number_of_results: "160"
+    number_of_results: "20"
 

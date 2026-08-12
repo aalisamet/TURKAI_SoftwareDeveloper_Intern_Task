@@ -3,7 +3,7 @@ from .ConfigDistributer import ConfigDistributerService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from src.models.WantedPerson import WantedPerson
+from models.WantedPerson import WantedPerson
 
 '''
 Cok onemli " https://ws-public.interpol.int/notices/v1/red?resultPerPage=100&page=1 "

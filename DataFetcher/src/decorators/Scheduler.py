@@ -1,6 +1,6 @@
 import time
 
-from src.services.ConfigDistributer import ConfigDistributerService
+from services.ConfigDistributer import ConfigDistributerService
 
 
 def blocking_scheduler(function):
