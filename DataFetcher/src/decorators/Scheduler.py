@@ -1,13 +1,13 @@
 import time
 
-from services.ConfigDistributer import ConfigDistributerService
+from configuration.ConfigDistributor import ConfigDistributorService
 
 
 def blocking_scheduler(function):
 
     def wrapper(*args, **kwargs):
 
-        interval = ConfigDistributerService().get_scheduler_config_data("scheduler", "interval")
+        interval = ConfigDistributorService().get_scheduler_config_data("scheduler", "interval")
         while True:
             function(*args, **kwargs)
             time.sleep(interval)

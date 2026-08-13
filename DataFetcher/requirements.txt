@@ -1,6 +1,5 @@
-pika
-yaml
-pathlib
+python3-pika
 aiohttp
 requests
 selenium
+pyyaml
