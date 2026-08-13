@@ -1,5 +1,5 @@
 from selenium import webdriver
-from .ConfigDistributer import ConfigDistributerService
+from configuration.ConfigDistributor import ConfigDistributorService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
@@ -15,7 +15,7 @@ ile ilk 100 aranan kisi dogrudan json olarak cekilebilir iohttp ile bu datalar
 
 class SeleniumDataFetcherService:
 
-    base_url=ConfigDistributerService().get_provider_config_data("selenium", "base_url")
+    base_url=ConfigDistributorService().get_provider_config_data("selenium", "base_url")
 
     #brings a driver instance
     @staticmethod
@@ -37,7 +37,7 @@ class SeleniumDataFetcherService:
         driver = SeleniumDataFetcherService.create_driver()
         driver.minimize_window()
         wanted_list=[]
-        search_value:str = ConfigDistributerService().get_provider_config_data("search", "search_value", "list_item")
+        search_value:str = ConfigDistributorService().get_provider_config_data("search", "search_value", "list_item")
         try:
             driver.get(SeleniumDataFetcherService.base_url + page_number)
             wait = WebDriverWait(driver, 10)

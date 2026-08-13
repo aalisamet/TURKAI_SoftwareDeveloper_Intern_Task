@@ -1,6 +1,5 @@
-
 import pika
-from services.ConfigDistributer import ConfigDistributerService
+from configuration.ConfigDistributor import ConfigDistributorService
 
 
 class MQPublisher:
@@ -8,9 +7,9 @@ class MQPublisher:
 
 
     def __init__(self):
-        self.host = ConfigDistributerService.get_rabbitmq_config_data("RabbitMQ","host")
-        self.port = ConfigDistributerService.get_rabbitmq_config_data("RabbitMQ","port")
-        self.topic = ConfigDistributerService.get_rabbitmq_config_data("RabbitMQ","topic")
+        self.host = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","host")
+        self.port = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","port")
+        self.topic = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","topic")
 
 
 

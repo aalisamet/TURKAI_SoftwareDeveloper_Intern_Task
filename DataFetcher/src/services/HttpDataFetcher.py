@@ -1,14 +1,14 @@
 import aiohttp
 import asyncio
 import requests
-from services.ConfigDistributer import ConfigDistributerService
+from configuration.ConfigDistributor import ConfigDistributorService
 
 
 
 
 class HttpDataFetcherService:
-    __base_url = ConfigDistributerService.get_provider_config_data("http", "base_url")
-    __number_of_results = ConfigDistributerService.get_provider_config_data("http", "number_of_results")
+    __base_url = ConfigDistributorService.get_provider_config_data("http", "base_url")
+    __number_of_results = ConfigDistributorService.get_provider_config_data("http", "number_of_results")
     __request_header = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -42,7 +42,7 @@ class HttpDataFetcherService:
             wanted_people_response = {"_embedded": {"notices": []}}
         print(wanted_people_response)
         wanted_profile_list= [x["_links"]["self"]["href"] for x in wanted_people_response["_embedded"]["notices"]]
-        print(wanted_profile_list)
+        #print(wanted_profile_list)
         return wanted_profile_list
 
     @staticmethod
@@ -88,7 +88,6 @@ class HttpDataFetcherService:
     def request_wanted_profiles():
 
         urls = HttpDataFetcherService.__request_wanted_links()
-        print(urls)
         wanted_list = []
 
         for url in urls:

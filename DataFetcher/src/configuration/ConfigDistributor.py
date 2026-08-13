@@ -1,7 +1,7 @@
 import pathlib
 import yaml
 
-class ConfigDistributerService:
+class ConfigDistributorService:
 
 
 
@@ -24,7 +24,6 @@ class ConfigDistributerService:
 
 
         self.provider_config_data = open_config_file('DataProviderConfig.yaml')
-        print(self.provider_config_data)
         self.scheduler_config_data = open_config_file('SchedulerConfig.yaml')
         self.rabbitmq_config_data = open_config_file('RabbitMQConfig.yaml')
 
@@ -33,7 +32,7 @@ class ConfigDistributerService:
 
     @staticmethod
     def get_provider_config_data(*args):
-        data = ConfigDistributerService().provider_config_data
+        data = ConfigDistributorService().provider_config_data
         for argument in args:
             data = data[argument]
         if data is None:
@@ -43,7 +42,7 @@ class ConfigDistributerService:
 
     @staticmethod
     def get_scheduler_config_data(*args):
-        data = ConfigDistributerService().scheduler_config_data
+        data = ConfigDistributorService().scheduler_config_data
         for argument in args:
             data = data[argument]
         if data is None:
@@ -53,7 +52,7 @@ class ConfigDistributerService:
 
     @staticmethod
     def get_rabbitmq_config_data(*args):
-        data = ConfigDistributerService().rabbitmq_config_data
+        data = ConfigDistributorService().rabbitmq_config_data
         for argument in args:
             data = data[argument]
         if data is None:
