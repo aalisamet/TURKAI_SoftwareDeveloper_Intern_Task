@@ -2,8 +2,7 @@ import aiohttp
 import asyncio
 import requests
 from configuration.ConfigDistributor import ConfigDistributorService
-
-
+from models.WantedPerson import WantedPerson
 
 
 class HttpDataFetcherService:
@@ -54,15 +53,15 @@ class HttpDataFetcherService:
         place_of_birth = response["place_of_birth"]
         nationality = response["nationalities"]
         height = response["height"]
-        wanted_person = {
-            "first_name": first_name,
-            "last_name": last_name,
-            "gender": gender,
-            "date_of_birth": date_of_birth,
-            "place_of_birth": place_of_birth,
-            "nationality": nationality,
-            "height": height
-        }
+        wanted_person = WantedPerson(
+            first_name=first_name,
+            last_name=last_name,
+            gender=gender,
+            date_of_birth=date_of_birth,
+            place_of_birth=place_of_birth,
+            nationality=nationality,
+            height=height)
+
         return wanted_person
 
     @staticmethod
