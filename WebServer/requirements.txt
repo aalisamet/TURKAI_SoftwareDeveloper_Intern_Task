@@ -1,4 +1,4 @@
 django
 python3-pika
 pyyaml
-celery
+aio-pika

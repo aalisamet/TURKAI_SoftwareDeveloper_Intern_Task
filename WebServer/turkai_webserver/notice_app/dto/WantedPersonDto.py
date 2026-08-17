@@ -1,6 +1,7 @@
 class WantedPersonDto(object):
 
     def __init__(self, model_fields):
+        self.id = "01"
         self.first_name = model_fields.get("first_name")
         self.last_name = model_fields.get("last_name")
         self.gender = model_fields.get("gender")
