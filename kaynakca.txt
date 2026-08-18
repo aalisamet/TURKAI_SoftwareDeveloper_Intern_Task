@@ -21,3 +21,11 @@ https://docs.celeryq.dev/en/stable/getting-started/next-steps.html#routing
 https://www.youtube.com/watch?v=Rr4CW2quazA
 
 https://www.youtube.com/watch?v=VRHVEporra0
+
+https://pypi.org/project/django-asgi-lifespan/
+
+https://asgi.readthedocs.io/en/latest/specs/lifespan.html
+
+https://www.youtube.com/watch?v=6szSRiQKHBs
+
+https://channels.readthedocs.io/en/latest/

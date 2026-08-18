@@ -2,3 +2,6 @@ django
 python3-pika
 pyyaml
 aio-pika
+uvicorn
+
+channels

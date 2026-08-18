@@ -10,13 +10,18 @@ https://docs.djangoproject.com/en/6.1/howto/deployment/asgi/
 import os
 import asyncio
 from django.core.asgi import get_asgi_application
-
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
 from consumer.RabbitMQConsumer import RabbitMQConsumer
-
+from data_management.services.WantedPersonManager import WantedPersonManager
+from notice_app.routing import websocket_urlpatterns
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'turkai_webserver.settings')
 
-django_app = get_asgi_application()
+django_app = ProtocolTypeRouter({
+    "http":get_asgi_application(),
+    "websocker": AuthMiddlewareStack(URLRouter())
 
+})
 
 async def worker():
     print("[Worker] Arka plan servisi başlatıldı.")
@@ -32,20 +37,19 @@ async def worker():
         print(f"[Worker] Hata: {e}")
 
 
-# 3. Lifespan destekli özel ASGI sarmalayıcısı (wrapper)
 async def application(scope, receive, send):
+
     if scope['type'] == 'lifespan':
         consumer_task = None
+        rabbitmq_consumer = RabbitMQConsumer(WantedPersonManager())
         while True:
             message = await receive()
 
-            # Sunucu ayağa kalkarken
             if message['type'] == 'lifespan.startup':
 
-                consumer_task = asyncio.create_task(RabbitMQConsumer.consume())
+                consumer_task = asyncio.create_task(rabbitmq_consumer.consume())
                 await send({'type': 'lifespan.startup.complete'})
 
-            # Sunucu kapanırken
             elif message['type'] == 'lifespan.shutdown':
                 if consumer_task and not consumer_task.done():
                     consumer_task.cancel()
@@ -56,7 +60,7 @@ async def application(scope, receive, send):
                 await send({'type': 'lifespan.shutdown.complete'})
                 return
     else:
-        # HTTP / WebSocket isteklerini doğrudan Django'ya yönlendir
+
         await django_app(scope, receive, send)
 
 

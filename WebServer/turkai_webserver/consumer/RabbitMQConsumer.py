@@ -1,65 +1,45 @@
-import ast
 import asyncio
 
 import aio_pika
 from configuration.ConfigDistributor import ConfigDistributorService
 import json
+from data_management.services.WantedPersonManager import WantedPersonManager
 
-from notice_app.services.WantedPersonManager import WantedPersonManager
 
 
 class RabbitMQConsumer:
 
-    def __init__(self):
+    def __init__(self,wanted_person_manager:WantedPersonManager):
         self.host = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","host")
         self.port = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","port")
         self.topic = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","topic")
-
-    @staticmethod
-    async def callback(message: aio_pika.abc.AbstractIncomingMessage):
-        message = ast.literal_eval(message.body.decode('utf-8').replace('\n', '').replace('\r', ''))
-        data_dict = ast.literal_eval(message)
-        print(type(data_dict))
-        await WantedPersonManager.save_wanted_person(data_dict)
+        self.pre_fetch_count = self.topic = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","pre_fetch_count")
+        self.person_manager = wanted_person_manager
 
 
 
+    async def callback(self,message: aio_pika.abc.AbstractIncomingMessage):
+        try:
+            data_dict =  json.loads(message.body.decode('utf-8').replace('\n', '').replace('\r', ''))
+            print(type(data_dict))
+            await self.person_manager.save_wanted_person(data_dict)
+        except Exception as e:
+            print(e.__str__())
 
 
-    @staticmethod
-    async def consume():
-        connection = await aio_pika.connect_robust(host=RabbitMQConsumer().host, port=RabbitMQConsumer().port)
+
+    async def consume(self):
+        connection = await aio_pika.connect_robust(host=self.host, port=self.port)
         async with connection:
             channel = await connection.channel()
-            print("Calisti 1")
-            queue = await channel.declare_queue(name=RabbitMQConsumer().topic, arguments={'x-queue-type': 'quorum'}, durable=True)
-            print("Calisti 2")
-            await queue.consume(callback=RabbitMQConsumer.callback,no_ack=True)
-            print("Calisti 3")
+            await channel.set_qos(prefetch_count=self.pre_fetch_count)
+            queue = await channel.declare_queue(name=self.topic, arguments={'x-queue-type': 'quorum'}, durable=True)
+            await queue.consume(callback=self.callback,no_ack=True)
+
             try:
                 await asyncio.Future()
-
-
-
             except asyncio.CancelledError as e:
                 print(e.__str__())
 
-'''
 
-@staticmethod
-    def receive():
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
-        channel = connection.channel()
-        channel.queue_declare(queue='interpol_datas', durable=True, arguments={'x-queue-type': 'quorum'})
 
-        def printer(ch, method, properties,body):
-            cleaned_data = body.decode('utf-8').replace('\n', '').replace('\r', '')
-            print(f" Mesaj Okundu: {cleaned_data}")
-
-        channel.basic_consume(queue='interpol_datas',auto_ack=True,on_message_callback=printer)
-
-        channel.start_consuming()
-
-        channel.close()
-
-'''
