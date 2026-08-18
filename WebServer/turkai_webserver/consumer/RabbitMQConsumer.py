@@ -1,31 +1,45 @@
-import pika
-from configuration.ConfigDistributor import ConfigDistributorService
-import ast
+import asyncio
 
-from notice_app.dto.WantedPersonDto import WantedPersonDto
-from notice_app.services.WantedPersonManager import WantedPersonManager
+import aio_pika
+from configuration.ConfigDistributor import ConfigDistributorService
+import json
+from data_management.services.WantedPersonManager import WantedPersonManager
+
 
 
 class RabbitMQConsumer:
 
-    def __init__(self):
+    def __init__(self,wanted_person_manager:WantedPersonManager):
         self.host = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","host")
         self.port = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","port")
         self.topic = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","topic")
+        self.pre_fetch_count = self.topic = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","pre_fetch_count")
+        self.person_manager = wanted_person_manager
 
-    @staticmethod
-    def consume():
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RabbitMQConsumer().host, port=RabbitMQConsumer().port))
-        channel = connection.channel()
-        channel.queue_declare(queue=RabbitMQConsumer().topic, durable=True, arguments={'x-queue-type': 'quorum'})
 
-        def callback(ch, method, properties, body):
-            cleaned_data_dict = ast.literal_eval(body.decode('utf-8').replace('\n', '').replace('\r', ''))
-            person = WantedPersonDto(cleaned_data_dict)
-            WantedPersonManager().add_wanted_person(person)
 
-        channel.basic_consume(queue=RabbitMQConsumer().topic, auto_ack=True, on_message_callback=callback)
+    async def callback(self,message: aio_pika.abc.AbstractIncomingMessage):
+        try:
+            data_dict =  json.loads(message.body.decode('utf-8').replace('\n', '').replace('\r', ''))
+            print(type(data_dict))
+            await self.person_manager.save_wanted_person(data_dict)
+        except Exception as e:
+            print(e.__str__())
 
-        channel.start_consuming()
 
-        channel.close()
+
+    async def consume(self):
+        connection = await aio_pika.connect_robust(host=self.host, port=self.port)
+        async with connection:
+            channel = await connection.channel()
+            await channel.set_qos(prefetch_count=self.pre_fetch_count)
+            queue = await channel.declare_queue(name=self.topic, arguments={'x-queue-type': 'quorum'}, durable=True)
+            await queue.consume(callback=self.callback,no_ack=True)
+
+            try:
+                await asyncio.Future()
+            except asyncio.CancelledError as e:
+                print(e.__str__())
+
+
+

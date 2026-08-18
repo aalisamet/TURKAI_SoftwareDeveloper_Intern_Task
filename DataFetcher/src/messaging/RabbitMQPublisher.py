@@ -21,7 +21,7 @@ class MQPublisher:
         channel.queue_declare(queue=MQPublisher().topic, durable=True, arguments={'x-queue-type': 'quorum'})
 
         for person in person_list:
-            channel.basic_publish(exchange='', routing_key=MQPublisher().topic, body=person.__str__())
+            channel.basic_publish(exchange='', routing_key=MQPublisher().topic, body=person.return_json())
 
         connection.close()
 

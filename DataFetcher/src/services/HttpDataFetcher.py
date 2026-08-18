@@ -33,7 +33,7 @@ class HttpDataFetcherService:
             if int(HttpDataFetcherService.__number_of_results)>160 or int(HttpDataFetcherService.__number_of_results)<1:
                 HttpDataFetcherService.__number_of_results = 160
         except ValueError:
-            HttpDataFetcherService.__number_of_results = 159
+            HttpDataFetcherService.__number_of_results = 160
         try:
             wanted_people_response = requests.get(HttpDataFetcherService.__base_url + HttpDataFetcherService.__number_of_results, headers=HttpDataFetcherService.__request_header).json()
         except requests.RequestException as e:

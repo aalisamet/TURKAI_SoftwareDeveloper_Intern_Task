@@ -67,7 +67,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'turkai_webserver.wsgi.application'
+
+ASGI_APPLICATION = 'turkai_webserver.asgi.application'
 
 
 # Database
@@ -127,4 +128,3 @@ MAILERS = {
     },
 }
 
-CELERY_BROKER_URL = 'rabbitmq://127.0.0.1:5672'
