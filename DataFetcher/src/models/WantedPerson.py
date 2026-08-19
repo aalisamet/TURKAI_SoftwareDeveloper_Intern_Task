@@ -2,7 +2,8 @@ import json
 
 class WantedPerson:
 
-    def __init__(self, first_name:str, last_name:str, gender:str,date_of_birth:str,place_of_birth:str,nationality:str,height:str):
+    def __init__(self, id:str,first_name:str, last_name:str, gender:str,date_of_birth:str,place_of_birth:str,nationality:str,height:str):
+        self.id = id
         self.first_name = first_name
         self.last_name = last_name
         self.gender=gender
@@ -26,7 +27,7 @@ class WantedPerson:
 
     def return_json(self):
 
-        wanted_person_fields_dict = {'first_name': self.first_name, 'last_name': self.last_name, 'gender': self.gender,
+        wanted_person_fields_dict = {'id':self.id,'first_name': self.first_name, 'last_name': self.last_name, 'gender': self.gender,
                                      'date_of_birth': self.date_of_birth, 'place_of_birth': self.place_of_birth,
                                      'nationality': self.nationality, 'height': self.height}
 

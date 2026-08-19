@@ -14,8 +14,6 @@ class DataEvent:
 
 class Observer(ABC):
 
-
-
     @abstractmethod
     async def update( self,data_event:DataEvent) -> None:
         ...

@@ -13,7 +13,7 @@ class RabbitMQConsumer:
         self.host = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","host")
         self.port = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","port")
         self.topic = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","topic")
-        self.pre_fetch_count = self.topic = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","pre_fetch_count")
+        self.pre_fetch_count = ConfigDistributorService.get_rabbitmq_config_data("RabbitMQ","pre_fetch_count")
         self.person_manager = wanted_person_manager
 
 
@@ -21,7 +21,7 @@ class RabbitMQConsumer:
     async def callback(self,message: aio_pika.abc.AbstractIncomingMessage):
         try:
             data_dict =  json.loads(message.body.decode('utf-8').replace('\n', '').replace('\r', ''))
-            print(type(data_dict))
+            print(data_dict)
             await self.person_manager.save_wanted_person(data_dict)
         except Exception as e:
             print(e.__str__())
@@ -30,12 +30,14 @@ class RabbitMQConsumer:
 
     async def consume(self):
         connection = await aio_pika.connect_robust(host=self.host, port=self.port)
+        print("TASK 1")
         async with connection:
             channel = await connection.channel()
-            await channel.set_qos(prefetch_count=self.pre_fetch_count)
-            queue = await channel.declare_queue(name=self.topic, arguments={'x-queue-type': 'quorum'}, durable=True)
-            await queue.consume(callback=self.callback,no_ack=True)
 
+            print("TASK 2")
+            queue = await channel.declare_queue(name=self.topic, arguments={'x-queue-type': 'quorum'},durable=True)
+            await queue.consume(callback=self.callback,no_ack=True)
+            print("TASK 3")
             try:
                 await asyncio.Future()
             except asyncio.CancelledError as e:

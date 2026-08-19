@@ -7,35 +7,30 @@ For more information on this file, see
 https://docs.djangoproject.com/en/6.1/howto/deployment/asgi/
 """
 
+
 import os
 import asyncio
-from django.core.asgi import get_asgi_application
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.routing import ProtocolTypeRouter,URLRouter
+
 from consumer.RabbitMQConsumer import RabbitMQConsumer
+from channels.security.websocket import AllowedHostsOriginValidator
+from channels.auth import AuthMiddlewareStack
 from data_management.services.WantedPersonManager import WantedPersonManager
 from notice_app.routing import websocket_urlpatterns
+from django.core.asgi import get_asgi_application
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'turkai_webserver.settings')
 
-django_app = ProtocolTypeRouter({
-    "http":get_asgi_application(),
-    "websocker": AuthMiddlewareStack(URLRouter())
+turkai_webserver_asgi_app = get_asgi_application()
 
-})
-
-async def worker():
-    print("[Worker] Arka plan servisi başlatıldı.")
-    try:
-        while True:
-            # Yapılacak asenkron işlem
-            # await consumer.consume() gibi
-            print("[Worker] Görev çalışıyor...")
-            await asyncio.sleep(5)
-    except asyncio.CancelledError:
-        print("[Worker] Kapatma sinyali alındı, temizlik yapılıyor...")
-    except Exception as e:
-        print(f"[Worker] Hata: {e}")
-
+turkai_webserver_application = ProtocolTypeRouter(
+    {
+        "http": turkai_webserver_asgi_app,
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+        ),
+    }
+)
 
 async def application(scope, receive, send):
 
@@ -61,6 +56,36 @@ async def application(scope, receive, send):
                 return
     else:
 
-        await django_app(scope, receive, send)
+        await turkai_webserver_application(scope, receive, send)
+
+async def consume_rabbitmq():
+    rabbitmq_consumer = RabbitMQConsumer(WantedPersonManager())
+    print("Hello World")
+    while True:
+        task = asyncio.create_task(rabbitmq_consumer.consume())
+        await task
+        await asyncio.sleep(1)
+consume_rabbitmq()
+
+
+
+
+
+
+'''
+async def worker():
+    print("[Worker] Arka plan servisi başlatıldı.")
+    try:
+        while True:
+            # Yapılacak asenkron işlem
+            # await consumer.consume() gibi
+            print("[Worker] Görev çalışıyor...")
+            await asyncio.sleep(5)
+    except asyncio.CancelledError:
+        print("[Worker] Kapatma sinyali alındı, temizlik yapılıyor...")
+    except Exception as e:
+        print(f"[Worker] Hata: {e}")
+'''
+
 
 

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'notice_app.apps.NoticeAppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -128,3 +129,8 @@ MAILERS = {
     },
 }
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}

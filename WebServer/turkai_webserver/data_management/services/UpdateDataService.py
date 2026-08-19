@@ -1,7 +1,7 @@
 from typing import override
 
 from data_management.services.Observer import Observer, DataEventType
-
+from notice_app.websocket_consumer import WebsocketConsumer
 
 class UpdateDataService(Observer):
 
@@ -13,8 +13,8 @@ class UpdateDataService(Observer):
 
             match data_event.event_type:
                 case DataEventType.CREATED:
-                    pass
+                    WebsocketConsumer().receive("deneme")
 
                 case DataEventType.UPDATED:
-                    pass
+                    WebsocketConsumer().receive("deneme2")
 

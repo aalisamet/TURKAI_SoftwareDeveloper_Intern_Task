@@ -1,4 +1,6 @@
 from django.db import models
+'''
+
 
 class WantedPerson(models.Model):
 
@@ -10,3 +12,6 @@ class WantedPerson(models.Model):
         self.place_of_birth=place_of_birth
         self.nationality=nationality
         self.height=height
+
+
+'''

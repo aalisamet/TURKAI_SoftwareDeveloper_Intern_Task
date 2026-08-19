@@ -31,7 +31,6 @@ class WantedPersonManager:
     async def _notify_observers(observers: set[Observer], person: WantedPersonDto, event_type: DataEventType) -> None:
         event = DataEvent(person, event_type)
         for observer in list(observers):
-
             await observer.update(event)
 
     # Observer Metotları

@@ -46,14 +46,18 @@ class HttpDataFetcherService:
 
     @staticmethod
     def create_wanted_profile_with_json(response):
+        entity_id = response["entity_id"]
         first_name = response["name"]
         last_name = response["forename"]
         gender = response["sex_id"]
+        if gender=="M": gender="Male"
+        else: gender = "Female"
         date_of_birth = response["date_of_birth"]
         place_of_birth = response["place_of_birth"]
         nationality = response["nationalities"]
         height = response["height"]
         wanted_person = WantedPerson(
+            id=entity_id,
             first_name=first_name,
             last_name=last_name,
             gender=gender,
