@@ -5,3 +5,4 @@ aio-pika
 uvicorn
 
 channels
+websockets

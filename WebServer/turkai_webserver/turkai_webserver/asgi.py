@@ -10,33 +10,33 @@ https://docs.djangoproject.com/en/6.1/howto/deployment/asgi/
 
 import os
 import asyncio
-from channels.routing import ProtocolTypeRouter,URLRouter
-
 from consumer.RabbitMQConsumer import RabbitMQConsumer
-from channels.security.websocket import AllowedHostsOriginValidator
-from channels.auth import AuthMiddlewareStack
+from data_management.services.UpdateDataService import UpdateDataService
 from data_management.services.WantedPersonManager import WantedPersonManager
-from notice_app.routing import websocket_urlpatterns
 from django.core.asgi import get_asgi_application
-
+from notice_app.websocket import WantedPersonWebSocket
+from websockets.asyncio.server import serve
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'turkai_webserver.settings')
 
 turkai_webserver_asgi_app = get_asgi_application()
 
-turkai_webserver_application = ProtocolTypeRouter(
-    {
-        "http": turkai_webserver_asgi_app,
-        "websocket": AllowedHostsOriginValidator(
-            AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
-        ),
-    }
-)
+
+
+
+
 
 async def application(scope, receive, send):
 
     if scope['type'] == 'lifespan':
         consumer_task = None
-        rabbitmq_consumer = RabbitMQConsumer(WantedPersonManager())
+        websocket = WantedPersonWebSocket()
+        update_data = UpdateDataService(websocket)
+        wanted_person_manager = WantedPersonManager()
+        wanted_person_manager.register_new_data_observer(update_data)
+        wanted_person_manager.register_update_observer(update_data)
+        rabbitmq_consumer = RabbitMQConsumer(wanted_person_manager)
+        websocket_server = await serve(handler=websocket.handler, host=websocket.host, port=websocket.port)
+
         while True:
             message = await receive()
 
@@ -46,8 +46,14 @@ async def application(scope, receive, send):
                 await send({'type': 'lifespan.startup.complete'})
 
             elif message['type'] == 'lifespan.shutdown':
+
+                await websocket.shutdown()
+                websocket_server.close()
+                await websocket_server.wait_closed()
+
                 if consumer_task and not consumer_task.done():
                     consumer_task.cancel()
+
                     try:
                         await consumer_task
                     except asyncio.CancelledError:
@@ -56,36 +62,11 @@ async def application(scope, receive, send):
                 return
     else:
 
-        await turkai_webserver_application(scope, receive, send)
-
-async def consume_rabbitmq():
-    rabbitmq_consumer = RabbitMQConsumer(WantedPersonManager())
-    print("Hello World")
-    while True:
-        task = asyncio.create_task(rabbitmq_consumer.consume())
-        await task
-        await asyncio.sleep(1)
-consume_rabbitmq()
+        await turkai_webserver_asgi_app(scope, receive, send)
 
 
 
 
-
-
-'''
-async def worker():
-    print("[Worker] Arka plan servisi başlatıldı.")
-    try:
-        while True:
-            # Yapılacak asenkron işlem
-            # await consumer.consume() gibi
-            print("[Worker] Görev çalışıyor...")
-            await asyncio.sleep(5)
-    except asyncio.CancelledError:
-        print("[Worker] Kapatma sinyali alındı, temizlik yapılıyor...")
-    except Exception as e:
-        print(f"[Worker] Hata: {e}")
-'''
 
 
 

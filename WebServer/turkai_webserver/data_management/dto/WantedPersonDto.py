@@ -1,6 +1,10 @@
+import json
+
+
 class WantedPersonDto(object):
 
     def __init__(self, model_fields):
+        self.data_dict = model_fields
         self.id = model_fields.get("id")
         self.first_name = model_fields.get("first_name")
         self.last_name = model_fields.get("last_name")
@@ -40,6 +44,9 @@ class WantedPersonDto(object):
             return "height"
         else:
             return "nothing"
+
+    def convert_json(self):
+        return json.dumps(self.data_dict)
 
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name} {self.gender} {self.date_of_birth} {self.place_of_birth} {self.nationality} {self.height}"

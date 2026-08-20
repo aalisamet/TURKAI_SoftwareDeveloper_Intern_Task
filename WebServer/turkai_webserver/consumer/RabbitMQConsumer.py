@@ -29,19 +29,26 @@ class RabbitMQConsumer:
 
 
     async def consume(self):
-        connection = await aio_pika.connect_robust(host=self.host, port=self.port)
-        print("TASK 1")
-        async with connection:
-            channel = await connection.channel()
-
-            print("TASK 2")
-            queue = await channel.declare_queue(name=self.topic, arguments={'x-queue-type': 'quorum'},durable=True)
-            await queue.consume(callback=self.callback,no_ack=True)
-            print("TASK 3")
+        while True:
             try:
-                await asyncio.Future()
-            except asyncio.CancelledError as e:
-                print(e.__str__())
+                await asyncio.sleep(2)
+                connection = await aio_pika.connect_robust(host=self.host, port=self.port)
+                print("TASK 1")
+                async with connection:
+                    channel = await connection.channel()
+
+                    print("TASK 2")
+                    queue = await channel.declare_queue(name=self.topic, arguments={'x-queue-type': 'quorum'},durable=True)
+                    await queue.consume(callback=self.callback,no_ack=True)
+                    print("TASK 3")
+                    try:
+                        await asyncio.Future()
+                    except asyncio.CancelledError as e:
+                        print(e.__str__())
+            except Exception as e:
+                print(e.__str__() + "hatasi alindi baglanti 15 saniye sonra tekrar denenecek")
+                await asyncio.sleep(15)
+
 
 
 

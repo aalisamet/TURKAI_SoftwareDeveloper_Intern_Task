@@ -14,17 +14,19 @@ class MQPublisher:
 
 
     @staticmethod
+
     def publish_all_list_in_single_connection(person_list):
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=MQPublisher().host, port=MQPublisher().port))
+            channel =connection.channel()
+            channel.queue_declare(queue=MQPublisher().topic, durable=True, arguments={'x-queue-type': 'quorum'})
 
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=MQPublisher().host, port=MQPublisher().port))
-        channel =connection.channel()
-        channel.queue_declare(queue=MQPublisher().topic, durable=True, arguments={'x-queue-type': 'quorum'})
+            for person in person_list:
+                channel.basic_publish(exchange='', routing_key=MQPublisher().topic, body=person.return_json())
 
-        for person in person_list:
-            channel.basic_publish(exchange='', routing_key=MQPublisher().topic, body=person.return_json())
-
-        connection.close()
-
+            connection.close()
+        except Exception as e:
+            print(e.__str__()+" Hatasi alindi 15 Saniye Sonra Baglanti Tekrar Denenecek")
 
     @staticmethod
     def receive():
